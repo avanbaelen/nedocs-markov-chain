@@ -1,25 +1,24 @@
-# nedocs-markov-chain
 # Forecasting Emergency Department Crowding with Markov Chains
 
-A healthcare analytics project exploring whether time-dependent Markov chain models can predict future emergency department crowding states using the National Emergency Department Overcrowding Score (NEDOCS).
+A predictive modeling project investigating whether historical emergency department crowding patterns can be used to forecast future National Emergency Department Overcrowding Score (NEDOCS) states.
 
 ## Project Overview
 
-Emergency department overcrowding is a persistent operational challenge that can affect patient flow, resource utilization, and quality of care. NEDOCS provides a standardized method for measuring the current level of emergency department crowding, but the score itself does not provide a forecast of future conditions.
+Emergency department overcrowding is a persistent operational challenge that can affect patient flow, resource utilization, and patient care. The National Emergency Department Overcrowding Score (NEDOCS) provides a standardized measure of current ED crowding, but the score itself does not predict how conditions may change over the next several hours.
 
-This project investigates whether historical transitions between NEDOCS states can be modeled using Markov chains to predict emergency department crowding several hours into the future.
+This project explores the use of time-dependent Markov chains to forecast future NEDOCS states using historical emergency department operational data.
 
-The analysis compares models trained using one year and four years of historical observations and evaluates forecast performance at horizons ranging from one to six hours.
+Rather than modeling ED crowding as an independent prediction at each point in time, the model uses the probability of transitioning from the current NEDOCS state to another state during subsequent hours.
 
 ## Research Question
 
-**Can historical NEDOCS state transitions be used to predict emergency department crowding several hours in advance?**
+**Can historical NEDOCS state transitions be used to predict emergency department crowding several hours into the future?**
 
-A secondary objective was to determine whether a longer historical training period improves predictive performance.
+The project also evaluates whether using a longer historical training period improves forecast performance.
 
 ## Methodology
 
-NEDOCS scores were converted into six discrete crowding states:
+Historical hourly NEDOCS observations were classified into six crowding states:
 
 1. Not Busy
 2. Busy
@@ -28,38 +27,39 @@ NEDOCS scores were converted into six discrete crowding states:
 5. Severe
 6. Critical
 
-Rather than using a single transition matrix, the model incorporates time-of-week patterns by constructing a separate Markov transition matrix for each hour of each day.
-
-This produces:
+Because emergency department activity varies throughout the week, the primary model incorporates temporal patterns by constructing a separate transition probability matrix for each hour of each day:
 
 **7 days × 24 hours = 168 transition matrices**
 
-Two models were developed using different amounts of historical training data:
+Each matrix represents the observed probabilities of transitioning between NEDOCS states for a specific hour of the week.
 
-* One-year training model
-* Four-year training model
+The data were divided chronologically into training and testing periods, with the earliest 80% of observations used for model development and the remaining 20% reserved for out-of-sample evaluation.
 
-Each dataset was divided using an 80/20 train-test split. Predictions were generated for forecast horizons from one hour (t+1) through six hours (t+6).
+Models using different amounts of historical training data were evaluated to determine whether additional historical observations improved forecasting performance.
+
+Predictions were generated at forecast horizons ranging from one hour (t+1) through six hours (t+6).
 
 ## Model Evaluation
 
-Forecast performance was evaluated using several approaches:
+Forecast performance was evaluated using multiple measures:
 
 * Overall prediction accuracy
-* Accuracy by individual NEDOCS state
+* Accuracy by NEDOCS state
 * Brier score for probabilistic forecast performance
 * Normalized confusion matrices
-* Comparison of one-year and four-year training periods
+* Performance across multiple forecast horizons
+* Comparison of models using different historical training periods
+* Analysis of performance across temporal patterns and crowding states
 
-Additional experiments investigated weighting and balancing techniques to determine whether state imbalance affected model performance.
+Additional experiments investigated weighting and balancing approaches to better understand the effect of differences in the frequency of individual NEDOCS states.
 
 ## Key Findings
 
-Both models achieved approximately **80% overall accuracy at the one-hour forecast horizon**, with accuracy decreasing as the forecast horizon increased.
+Both primary models achieved approximately **80% overall accuracy when forecasting NEDOCS one hour into the future (t+1)**, with accuracy declining as the forecast horizon increased.
 
-The four-year model generally performed slightly better than the one-year model, with larger improvements observed for some individual NEDOCS states.
+The model using the longer historical training period generally performed slightly better overall, with more noticeable improvements for some individual crowding states.
 
-The Critical crowding state demonstrated particularly strong predictive performance in the four-year model, with approximately:
+Prediction of the **Critical** NEDOCS state demonstrated particularly strong performance:
 
 | Forecast Horizon | Critical-State Accuracy |
 | ---------------- | ----------------------: |
@@ -68,14 +68,16 @@ The Critical crowding state demonstrated particularly strong predictive performa
 | t+3              |                     82% |
 | t+4              |                     84% |
 
-Analysis of the state distribution showed an imbalance toward higher crowding states. This may partially explain the model's stronger performance when predicting the Critical state and represents an important limitation when interpreting the results.
+Analysis of the underlying state distribution identified an imbalance toward higher crowding states. This may have contributed to stronger predictive performance for the Critical state and was considered when interpreting model performance.
 
-The results suggest that time-dependent Markov chains may provide useful short-term forecasts of ED crowding states, particularly at shorter forecast horizons.
+The results suggest that time-dependent Markov chains may provide useful short-term forecasts of emergency department crowding, while predictive performance becomes more limited as the forecast horizon increases.
 
-## Technologies and Methods
+## Technologies & Methods
 
 * Python
 * Jupyter Notebook
+* Pandas
+* NumPy
 * Markov Chains
 * Transition Probability Matrices
 * Probabilistic Forecasting
@@ -87,9 +89,11 @@ The results suggest that time-dependent Markov chains may provide useful short-t
 
 ## Data Availability
 
-The original analysis was performed using healthcare operational data that is not included in this public repository.
+The original analysis was conducted using real-world emergency department operational data.
 
-The repository contains the modeling code, methodology, aggregate results, and supporting documentation necessary to demonstrate the analytical approach without distributing the underlying healthcare data.
+The underlying dataset is proprietary healthcare information and is **not included in this repository**. The public repository contains the modeling methodology, Python implementation, aggregate analytical results, and supporting documentation without distributing the source healthcare data.
+
+The public version of the notebook has also been sanitized to remove source data, internal file paths, and organization-specific information.
 
 ## Repository Contents
 
@@ -97,49 +101,50 @@ The repository contains the modeling code, methodology, aggregate results, and s
 nedocs-markov-forecasting/
 │
 ├── README.md
+│
 ├── notebooks/
 │   └── nedocs_markov_forecasting.ipynb
+│
 ├── docs/
 │   └── nedocs_markov_forecasting_paper.pdf
+│
 ├── figures/
 │   ├── forecast_accuracy.png
 │   ├── state_accuracy.png
 │   └── confusion_matrices.png
+│
 └── requirements.txt
 ```
 
 ### Jupyter Notebook
 
-The notebook contains the Python implementation of the Markov forecasting model, including transition-matrix construction, multi-step forecasting, model evaluation, and visualization.
+The notebook contains the Python implementation of the forecasting framework, including data preparation, NEDOCS state classification, transition-matrix construction, multi-hour forecasting, model evaluation, and visualization.
 
 ### Technical Paper
 
-The accompanying paper provides a more detailed discussion of the motivation, methodology, numerical results, limitations, and conclusions of the original project.
+The accompanying technical paper documents the original research question, methodology, numerical results, analysis, and conclusions in greater detail.
 
 ## Limitations
 
-Several limitations should be considered when interpreting the results.
-
-The model relies primarily on historical transitions between NEDOCS states and does not incorporate many of the operational variables that may contribute to future ED crowding, such as patient arrivals, inpatient capacity, staffing, acuity, or diagnostic delays.
+The model primarily uses historical transitions between NEDOCS states and therefore does not directly incorporate many operational factors that may influence future ED crowding, such as patient arrivals, staffing, inpatient bed availability, patient acuity, diagnostic delays, or other hospital capacity constraints.
 
 The distribution of observations across NEDOCS states was also imbalanced, particularly toward higher crowding states, which may have influenced state-specific prediction accuracy.
 
-Finally, forecasting performance declined as the prediction horizon increased, suggesting that the model is more useful for short-term prediction than longer-range forecasting.
+Forecast accuracy decreased as the prediction horizon increased, suggesting that the model is better suited to short-term forecasting than longer-range prediction.
 
 ## Future Work
 
-Potential extensions of this project include:
+Potential extensions of the project include:
 
-* Comparing Markov forecasts against simple persistence and time-of-week baseline models
-* Incorporating additional operational features associated with ED crowding
-* Comparing Markov forecasting with other statistical and machine-learning approaches
-* Evaluating alternative methods for handling state imbalance
-* Investigating non-homogeneous and higher-order Markov models
-* Evaluating the model using additional datasets or healthcare environments
+* Comparing the Markov model against persistence and time-of-week forecasting baselines
+* Incorporating additional ED operational variables
+* Comparing Markov forecasting with statistical and machine-learning approaches
+* Further evaluating approaches for handling state imbalance
+* Investigating alternative Markov model structures
+* Evaluating model performance across additional emergency department environments
 
 ## Project Background
 
-This project was originally developed as undergraduate academic research and is presented here as an example of applied probability, predictive modeling, and healthcare analytics.
+This project was originally developed as undergraduate research exploring the application of stochastic modeling to a real-world healthcare operational problem.
 
-The public repository has been prepared as a portfolio version of the project. Healthcare data used in the original analysis is not distributed with the repository.
-
+It is presented here as a technical portfolio project demonstrating the application of probability, predictive modeling, Python, model evaluation, and healthcare domain knowledge to emergency department operations.
