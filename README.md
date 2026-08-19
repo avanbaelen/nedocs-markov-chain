@@ -1,6 +1,6 @@
 # Predicting Emergency Department Crowding with Markov Chains
 
-A predictive modeling project investigating whether historical emergency department crowding patterns can be used to forecast future National Emergency Department Overcrowding Score (NEDOCS) states.
+A predictive modeling project investigating whether historical NEDOCS state transitions can be used to forecast future NEDOCS states and emergency department crowding.
 
 **[Technical Research Paper](NEDOCS_Markov_Forecasting.pdf)** | **[Jupyter Notebook](NEDOCS_Markov_Forecasting.ipynb)** | **[Data Availability](data/README.md)**
 
